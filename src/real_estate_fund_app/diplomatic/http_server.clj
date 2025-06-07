@@ -1,0 +1,53 @@
+(ns real-estate-fund-app.diplomatic.http-server
+  (:require [clojure.java.jdbc :as jdbc]
+            [compojure.core :refer [POST defroutes]]
+            [compojure.route :as route]
+            [real-estate-fund-app.controller.asset :as controller.asset]
+            [real-estate-fund-app.diplomatic.db.financialdb :as diplomatic.db.financialdb]
+            [real-estate-fund-app.model.asset :as model.asset]
+            [real-estate-fund-app.wire.in.create-new-asset :as wire.in.create-new-asset]
+            [ring.adapter.jetty :as jetty]
+            [ring.middleware.defaults :refer [api-defaults wrap-defaults]]
+            [ring.middleware.json :refer [wrap-json-body wrap-json-response]]
+            [schema.core :as s]))
+
+(defroutes app-routes
+           (POST "/asset/real-estate" req
+                 (let [body (:body req)
+                       valid? (s/check wire.in.create-new-asset/Create-New-Asset-Schema body)]
+                   (if valid?
+                     {:status 400 :body {:erro "Dados inválidos" :detalhes valid?}}
+                     (do
+                       ;TODO criar o handler para alterar o objeto que vem do in para o que esperamos no controller
+                       (controller.asset/create-new-asset diplomatic.db.financialdb/db :real_estate_fund body)
+                       {:status 201 :body {:mensagem "Pessoa inserida com sucesso"}}))))
+           (route/not-found {:status 404 :body "Rota não encontrada"})
+
+
+           (POST "/asset/real-estate/refatorar" req
+             (let [body (:body req)
+                   valid? (s/check model.asset/Asset-schema body)]
+               (if valid?
+                 {:status 400 :body {:erro "Dados inválidos" :detalhes valid?}}
+                 (do
+                   (jdbc/insert! diplomatic.db.financialdb/db :real_estate_fund body)
+                   {:status 201 :body {:mensagem "Pessoa inserida com sucesso"}}))))
+           (route/not-found {:status 404 :body "Rota não encontrada"})
+
+
+
+
+           )
+
+
+
+;; Middleware
+(def app
+  (-> app-routes
+      (wrap-json-body {:keywords? true})
+      wrap-json-response
+      (wrap-defaults api-defaults)))
+
+;; Main
+(defn -main []
+  (jetty/run-jetty app {:port 3000}))
