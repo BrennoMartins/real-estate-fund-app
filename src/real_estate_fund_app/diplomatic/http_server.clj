@@ -4,6 +4,7 @@
             [compojure.route :as route]
             [real-estate-fund-app.controller.asset :as controller.asset]
             [real-estate-fund-app.diplomatic.db.financialdb :as diplomatic.db.financialdb]
+            [real-estate-fund-app.adapter.asset :as adapter.asset]
             [real-estate-fund-app.model.asset :as model.asset]
             [real-estate-fund-app.wire.in.create-new-asset :as wire.in.create-new-asset]
             [ring.adapter.jetty :as jetty]
@@ -14,12 +15,11 @@
 (defroutes app-routes
            (POST "/asset/real-estate" req
                  (let [body (:body req)
-                       valid? (s/check wire.in.create-new-asset/Create-New-Asset-Schema body)]
+                       valid? (s/check wire.in.create-new-asset/create-new-asset-schema body)]
                    (if valid?
                      {:status 400 :body {:erro "Dados inválidos" :detalhes valid?}}
                      (do
-                       ;TODO criar o handler para alterar o objeto que vem do in para o que esperamos no controller
-                       (controller.asset/create-new-asset diplomatic.db.financialdb/db :real_estate_fund body)
+                       (controller.asset/create-new-asset diplomatic.db.financialdb/db :real_estate_fund (adapter.asset/wire-create-new-asset->internal-asset body))
                        {:status 201 :body {:mensagem "Pessoa inserida com sucesso"}}))))
            (route/not-found {:status 404 :body "Rota não encontrada"})
 
