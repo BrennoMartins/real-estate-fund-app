@@ -6,9 +6,9 @@
 (s/defn wire-create-new-asset->internal-asset :- model.asset/Asset-schema
   [payload :- wire.in.create-new-asset/create-new-asset-schema]
    (->
-     (assoc payload :quotation_asset 0)
+     (assoc payload :quotation_asset 120)
      (assoc :difference_asset 0)
      (assoc :index_asset 0)
-     )
-   )
+     (assoc :value_asset 0)
+     ))
 

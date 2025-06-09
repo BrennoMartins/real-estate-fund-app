@@ -10,6 +10,8 @@
                  [ring/ring-jetty-adapter "1.10.0"]
                  [prismatic/schema "1.1.12"]
                  [org.clojure/java.jdbc "0.7.12"]
+                 [clj-http "3.12.3"]
+                 [metosin/malli "0.14.0"]
                  [org.postgresql/postgresql "42.7.3"]]
   :repl-options {:init-ns real-estate-fund-app.diplomatic.http-server}
   :main real-estate-fund-app.diplomatic.http-server)
