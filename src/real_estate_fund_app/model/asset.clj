@@ -8,7 +8,7 @@
    :quantity_asset            s/Num
    :quotation_asset           s/Num
    :value_asset               (s/maybe s/Num)
-   :value_avarage_price_asset (s/maybe s/Num)
+   :value_average_price_asset (s/maybe s/Num)
    :name_asset                s/Str})
 
 

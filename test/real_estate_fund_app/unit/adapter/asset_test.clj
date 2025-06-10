@@ -8,11 +8,11 @@
 
 
 (deftest creates-internal-asset-with-default-values
-  (let [payload {:id_asset 1
-                 :quantity_asset 10
-                 :value_avarage_price_asset 500
-                 :name_asset "Asset A"
-                 :value_asset 1000}
+  (let [payload {:id_asset                  1
+                 :quantity_asset            10
+                 :value_average_price_asset 500
+                 :name_asset                "Asset A"
+                 :value_asset               1000}
         result (wire-create-new-asset->internal-asset payload)]
     (is (= (:quotation_asset result) 0))
     (is (= (:difference_asset result) 0))
