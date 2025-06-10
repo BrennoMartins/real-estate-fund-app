@@ -1,6 +1,7 @@
 (ns real-estate-fund-app.wire.in.create-new-asset
 (:require [schema.core :as s]))
 
+;TODO revisar os campos com o excel
 (s/defschema create-new-asset-schema
   {:id_asset                  (s/constrained s/Int (complement nil?) 'id-asset-required)
    :quantity_asset            s/Num
