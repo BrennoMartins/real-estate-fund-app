@@ -1,53 +1,34 @@
-(ns real-estate-fund-app.logic.asset)
-
+(ns real-estate-fund-app.logic.asset
+  (:require
+    [real-estate-fund-app.model.asset :as model.asset]
+    [schema.core :as s]))
 
 (defn return-index-asset
   [quotation avarage-price]
-;BigDecimal percent = quotation.divide(averagePrice, 2, RoundingMode.HALF_UP).subtract(BigDecimal.ONE);
-;return percent.multiply(new BigDecimal("100"));
-    (let [percent (/ (- quotation avarage-price) avarage-price)]
-      (* percent 100)
-      )
-  )
+  (let [percent (/ (- quotation avarage-price) avarage-price)]
+    (* percent 100)))
 
 
+(defn return-difference-asset
+  [quotation avarage-price]
+  (- quotation avarage-price))
+
+(defn return-value-asset
+  [quantity quotation]
+  (* quantity quotation))
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-;@Override
-;public BigDecimal differenceCalculate(BigDecimal quotation, BigDecimal averagePrice) {
-;                                                                                      return quotation.subtract(averagePrice);
-;                                                                                      }
-;
-;@Override
-;public BigDecimal indexCalculate(BigDecimal quotation, BigDecimal averagePrice) {
-
-;                                                                                 }
-;
-;@Override
-;public BigDecimal valueCalculate(BigDecimal quantity, BigDecimal quotation) {
-;                                                                             return quantity.multiply(quotation);
-;                                                                             }
-;
-;public Asset calculatedValues(Asset asset){
-;                                           if(asset.getQuotation() == null){
-;                                                                            //TODO Buscar Cotação
-;                                                                            asset.setQuotation(BigDecimal.valueOf(0));
-;                                                                            }
-;                                           asset.setDifference(differenceCalculate(asset.getQuotation(), asset.getAveragePrice()));
-;                                           asset.setIndex(indexCalculate(asset.getQuotation(), asset.getAveragePrice()));
-;                                           asset.setValue(valueCalculate(asset.getQuantity(), asset.getQuotation()));
-;                                           return asset;
-;                                           }
+(s/defn return-calculated-values :- model.asset/Asset-schema
+  "Calculate the values for the asset based on the quotation and average price."
+  [quotation :- s/Num
+   body :- model.asset/Asset-schema]
+  (let [average-price (:value_average_price_asset body)
+        quantity (:quantity_asset body)
+        index (return-index-asset quotation average-price)
+        value (return-value-asset quantity quotation)
+        difference (return-difference-asset quotation average-price)]
+    (-> body
+        (assoc :quotation_asset quotation)
+        (assoc :index_asset index)
+        (assoc :difference_asset difference)
+        (assoc :value_asset value))))

@@ -2,11 +2,12 @@
   (:require [clj-http.client :as client]
             [real-estate-fund-app.wire.in.list-quotation :as wire.in.list-quotation]
             [clojure.walk :refer [keywordize-keys]]
+            [real-estate-fund-app.config :as config]
             [malli.core :as m]))
 
 (defn get-all-quotation-asset
   []
-  (let [url "http://localhost:8084/app/quotation"
+  (let [url config/quotation-url
         response (client/get url {:as :json-string-keys})
         data (keywordize-keys (:body response))]
     (println "Response from API:" data)
