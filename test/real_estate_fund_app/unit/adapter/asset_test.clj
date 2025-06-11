@@ -23,7 +23,7 @@
 
 (deftest handles-missing-required-fields
   (let [payload {:value_asset 1000}
-        result (s/check model.asset/Asset-schema (wire-create-new-asset->internal-asset payload))]
+        result (s/check model.asset/asset-schema (wire-create-new-asset->internal-asset payload))]
     (is (map? result))
     (is (contains? result :name_asset))))
 

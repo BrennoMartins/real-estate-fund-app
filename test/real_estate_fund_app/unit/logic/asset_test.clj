@@ -26,3 +26,4 @@
         average-price 100
         result (return-index-asset quotation average-price)]
     (is (= result -150.0))))
+; TODO revisar todas as classes para teste

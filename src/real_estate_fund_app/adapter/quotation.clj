@@ -1,16 +1,12 @@
 (ns real-estate-fund-app.adapter.quotation
-  (:require [real-estate-fund-app.diplomatic.http-client :as diplomatic.http-client]
-            [malli.core :as m]
+  (:require [real-estate-fund-app.model.quotation :as model.quotation]
+            [real-estate-fund-app.wire.in.list-quotation :as wire.in.list-quotation]
             [schema.core :as s]))
 
 
-;TODO verificar se a consulta aqui deveria ficar no logic ou aqui no adapter
+;TODO no futuro pensar em trabalhar com esse mapa para deixar apenas um retorno
+(s/defn wire-in-quotation->internal :- model.quotation/QuotationListSchema
+  [data :- wire.in.list-quotation/QuotationListSchema]
+  data)
 
 
-(s/defn return-value-quotation :- s/Str
-  "Return the value of the quotation asset."
-  [asset :- s/Str]
-  (let [list-quotation (diplomatic.http-client/get-all-quotation-asset)]
-    (if-let [quotation (some #(when (= (:name %) asset) %) list-quotation)]
-      (:value quotation)
-      (throw (ex-info "Quotation not found for asset!" {:asset asset})))))

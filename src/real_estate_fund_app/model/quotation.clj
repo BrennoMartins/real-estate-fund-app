@@ -1,6 +1,6 @@
-(ns real-estate-fund-app.wire.in.list-quotation)
+(ns real-estate-fund-app.model.quotation)
 
-(def QuotationSchema
+(def Quotation
   [:map
    [:id int?]
    [:name string?]
@@ -9,4 +9,4 @@
    [:automaticUpdateValue boolean?]])
 
 (def QuotationListSchema
-  [:vector QuotationSchema])
+  [:vector Quotation])

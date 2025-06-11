@@ -26,7 +26,7 @@
 
            (POST "/asset/real-estate/refatorar" req
              (let [body (:body req)
-                   valid? (s/check model.asset/Asset-schema body)]
+                   valid? (s/check model.asset/asset-schema body)]
                (if valid?
                  {:status 400 :body {:erro "Dados inválidos" :detalhes valid?}}
                  (do
