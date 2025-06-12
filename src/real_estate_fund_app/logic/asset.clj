@@ -37,8 +37,8 @@
   "Calculate the values for the asset based on the quotation and average price."
   [quotation :- s/Num
    body :- model.asset/asset-schema]
-  (let [average-price (:value_average_price_asset body)
-        quantity (:quantity_asset body)
+  (let [average-price (:value-average-price-asset body)
+        quantity (:quantity-asset body)
         index (return-index-asset quotation average-price)
         value (return-value-asset quantity quotation)
         value-total-avg (return-value-total-avg-asset quantity average-price)
@@ -48,18 +48,18 @@
         ;TODO implementar o sum-value-avg-asset
         sum-value-avg-asset 0
         percent_current (return-percent-current value sum-value-asset)
-        perc-diff-recommendation (return-perc-diff-recommendation (:percent_recommendation body) percent_current)
+        perc-diff-recommendation (return-perc-diff-recommendation (:percent-recommendation body) percent_current)
         quantity-fix (return-quantity-fix perc-diff-recommendation sum-value-avg-asset average-price)
         ]
     (-> body
-        (assoc :quotation_asset quotation)
-        (assoc :index_asset index)
-        (assoc :value_total_average_price_asset value-total-avg)
-        (assoc :profit_asset profit)
-        (assoc :percent_current percent_current)
-        (assoc :percent_difference_recommendation perc-diff-recommendation)
-        (assoc :quantity_fix quantity-fix)
-        (assoc :value_asset value))))
+        (assoc :quotation-asset quotation)
+        (assoc :index-asset index)
+        (assoc :value-total-average-price-asset value-total-avg)
+        (assoc :profit-asset profit)
+        (assoc :percent-current percent_current)
+        (assoc :percent-difference-recommendation perc-diff-recommendation)
+        (assoc :quantity-fix quantity-fix)
+        (assoc :value-asset value))))
 
 
 ;TODO refatorar todas as keywords para -
