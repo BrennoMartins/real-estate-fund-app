@@ -14,3 +14,11 @@
         new-body-asset (logic.asset/return-calculated-values quotation body)]
 
     (jdbc/insert! db table (util.convert/schema-keys-to-snake-case new-body-asset))))
+
+
+
+(defn return-all-assets
+  "Return all asset."
+  [db table]
+  (jdbc/query db
+              [(str "SELECT * FROM " table " ORDER BY id DESC")]))
