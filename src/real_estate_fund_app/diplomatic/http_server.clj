@@ -1,6 +1,6 @@
 (ns real-estate-fund-app.diplomatic.http-server
   (:require [clojure.java.jdbc :as jdbc]
-            [compojure.core :refer [POST defroutes]]
+            [compojure.core :refer [defroutes POST GET]]
             [compojure.route :as route]
             [real-estate-fund-app.controller.asset :as controller.asset]
             [real-estate-fund-app.diplomatic.db.financialdb :as diplomatic.db.financialdb]
@@ -17,12 +17,10 @@
                  (let [body (:body req)
                        valid? (s/check wire.in.create-new-asset/create-new-asset-schema body)]
                    (if valid?
-                     {:status 400 :body {:erro "Dados inválidos" :detalhes valid?}}
+                     {:status 400 :body {:erro "Invalid data" :detalhes valid?}}
                      (do
                        (controller.asset/create-new-asset diplomatic.db.financialdb/db :real_estate_fund (adapter.asset/wire-create-new-asset->internal-asset body))
-                       {:status 201 :body {:mensagem "Pessoa inserida com sucesso"}}))))
-           (route/not-found {:status 404 :body "Rota não encontrada"})
-
+                       {:status 201 :body {:mensagem "Asset created successfully"}}))))
 
            (POST "/asset/real-estate/refatorar" req
              (let [body (:body req)
@@ -32,14 +30,13 @@
                  (do
                    (jdbc/insert! diplomatic.db.financialdb/db :real_estate_fund body)
                    {:status 201 :body {:mensagem "Pessoa inserida com sucesso"}}))))
-           (route/not-found {:status 404 :body "Rota não encontrada"})
 
+           (GET "/asset/real-estate" []
+             (let [assets (controller.asset/return-all-assets diplomatic.db.financialdb/db "real_estate_fund")]
+               {:status 200
+                :body assets}))
 
-
-
-           )
-
-
+           (route/not-found {:status 404 :body "Route not found"}))
 
 ;; Middleware
 (def app
