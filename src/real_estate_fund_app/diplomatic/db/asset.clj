@@ -1,11 +1,11 @@
 (ns real-estate-fund-app.diplomatic.db.asset
   (:require [clojure.java.jdbc :as jdbc]
-            [real-estate-fund-app.util.convert :as util.convert]
-            [real-estate-fund-app.diplomatic.db.financialdb :as diplomatic.db.financialdb]
-            [real-estate-fund-app.util.convert :as util.convert]))
+            [real-estate-fund-app.model.asset :as model.asset]
+            [schema.core :as s]
+            [real-estate-fund-app.diplomatic.db.financialdb :as diplomatic.db.financialdb]))
 
 ; TODO colocar a saida do metodo no formato do schema
-(defn return-all-assets-db
+(s/defn return-all-assets-db :- model.asset/asset-schema
   "Return all asset."
   [db table]
   (jdbc/query db
