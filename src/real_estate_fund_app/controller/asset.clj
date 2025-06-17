@@ -14,6 +14,7 @@
   [db table]
   (let [all-asset (diplomatic.db.asset/return-all-assets-db db table)]
     (map util.convert/schema-keys-to-kebab-case all-asset)))
+
 (defn create-new-asset
   "Create a new asset in the database."
   [db table body]
@@ -27,15 +28,33 @@
 
     ))
 
+
+(defn return-name
+  [asset sum-value-asset sum-value-avg-asset]
+  (let [total-value (+ (:value-asset asset) 10)]
+    {:saida-valortotal total-value
+     :teste-brenno "brenno"
+     }
+    )
+  )
+
+(defn dividir
+  [asset]
+
+)
+
 (defn update-recommendation
   "Update the recommendation percentage for an asset."
   [db table]
   (let [list-asset (return-all-assets db (name table))
         sum-value-asset (logic.asset/return-sum-value-asset (return-all-assets db (name table)))
         sum-value-avg-asset (logic.asset/return-sum-value-average-price-asset (return-all-assets db (name table)))]
-    ;(println (map (logic.asset/return-calculated-values-only-need (:quotation-asset list-asset) (:value-average-price-asset list-asset) (:quantity-asset list-asset) (:percent-recommendation list-asset) sum-value-asset sum-value-avg-asset) list-asset))
-    (println list-asset)
+    (map (fn [asset]
+           (let [percent (+ (:value-asset asset) sum-value-asset)]
+             (assoc asset :percent percent)))
+         list-asset)
     )
-)
+
+  )
 
 

@@ -13,7 +13,6 @@
   (let [url config/quotation-url
         response (client/get url {:as :json-string-keys})
         data (keywordize-keys (:body response))]
-    (println "Response from API:" data)
     (if (m/validate wire.in.list-quotation/QuotationListSchema data)
       (adapter.quotation/wire-in-quotation->internal data)
       (throw (ex-info "Response does not match with schema!" {:data data})))))
@@ -26,7 +25,6 @@
   (let [url "http://localhost:8084/app/quotation"
         response (client/get url {:as :json-string-keys})
         data (keywordize-keys (:body response))]
-    (println "Response from API:" data)
     ;(when-not (m/validate wire.in.list-quotation/QuotationListSchema data)
     ;  (println "nao - " (m/explain wire.in.list-quotation/QuotationListSchema data)))
     (if (m/validate wire.in.list-quotation/QuotationListSchema data)
