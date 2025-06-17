@@ -28,11 +28,11 @@
 
 (defn return-percent-current
   [value sum-value-asset]
-  (* 100 (/ value sum-value-asset)))
+  (* 100 (/ value (+ sum-value-asset value))))
 
 (defn return-quantity-fix
-  [perc-diff-recommendation sum-value-avg-asset average-price]
-  (let [total-all-asset-avg (* perc-diff-recommendation sum-value-avg-asset)]
+  [perc-diff-recommendation sum-value-avg-asset average-price value-total-avg]
+  (let [total-all-asset-avg (* perc-diff-recommendation (+ value-total-avg sum-value-avg-asset))]
     (/ total-all-asset-avg average-price)))
 
 
@@ -52,7 +52,7 @@
         profit (return-profit-asset value value-total-avg)
         percent_current (return-percent-current value sum-value-asset)
         perc-diff-recommendation (return-perc-diff-recommendation (:percent-recommendation body) percent_current)
-        quantity-fix (return-quantity-fix perc-diff-recommendation sum-value-avg-asset average-price)
+        quantity-fix (return-quantity-fix perc-diff-recommendation sum-value-avg-asset average-price value-total-avg)
         ]
     (-> body
         (assoc :quotation-asset quotation)
@@ -65,10 +65,37 @@
         (assoc :value-asset value))))
 
 
-;TODO implementar o sum-value-asset
+(s/defn return-calculated-values-only-need :- model.asset/asset-schema
+  "Calculate the values for the asset based on the quotation and average price."
+  [quotation :- s/Num
+   average-price :- s/Num
+   quantity :- s/Num
+   percent-recommendation :- s/Num
+   sum-value-asset :- s/Num
+   sum-value-avg-asset :- s/Num
+   ]
+  (let [index (return-index-asset quotation average-price)
+        value (return-value-asset quantity quotation)
+        value-total-avg (return-value-total-avg-asset quantity average-price)
+        profit (return-profit-asset value value-total-avg)
+        percent_current (return-percent-current value sum-value-asset)
+        perc-diff-recommendation (return-perc-diff-recommendation percent-recommendation percent_current)
+        quantity-fix (return-quantity-fix perc-diff-recommendation sum-value-avg-asset average-price value-total-avg)
+        ]
+    ({:quotation-asset quotation
+      :index-asset index
+      :value-total-average-price-asset value-total-avg
+      :profit-asset profit
+      :percent-current percent_current
+      :percent-difference-recommendation perc-diff-recommendation
+      :quantity-fix quantity-fix
+      :value-asset value})))
+
+
 (defn return-sum-value-asset
   [assets]
   (reduce + (map :value-asset assets)))
 
-
-;TODO implementar o sum-value-avg-asset
+ (defn return-sum-value-average-price-asset
+  [assets]
+  (reduce + (map :value-total-average-price-asset assets)))

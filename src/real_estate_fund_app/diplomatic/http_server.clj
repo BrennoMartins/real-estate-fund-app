@@ -36,6 +36,11 @@
                {:status 200
                 :body assets}))
 
+           (GET "/asset/real-estate/update" []
+             (let [assets (controller.asset/update-recommendation diplomatic.db.financialdb/db "real_estate_fund")]
+               {:status 200
+                :body assets}))
+
            (route/not-found {:status 404 :body "Route not found"}))
 
 ;; Middleware
