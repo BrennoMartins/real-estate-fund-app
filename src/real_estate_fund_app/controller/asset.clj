@@ -6,7 +6,8 @@
             [real-estate-fund-app.util.convert :as util.convert]
             [real-estate-fund-app.diplomatic.db.asset :as diplomatic.db.asset]
             [real-estate-fund-app.diplomatic.http-client :as diplomatic.http-client]
-            [schema.core :as s]))
+            [schema.core :as s])
+  (:import (java.math RoundingMode)))
 
 
 (s/defn return-all-assets :- model.asset/asset-schema
@@ -18,7 +19,7 @@
 (defn create-new-asset
   "Create a new asset in the database."
   [db table body]
-  (let [quotation (controller.quotation/return-value-quotation (:name-asset body )
+  (let [quotation (controller.quotation/return-value-quotation (:name-asset body)
                                                                (diplomatic.http-client/get-all-quotation-asset))
         sum-value-asset (logic.asset/return-sum-value-asset (return-all-assets db (name table)))
         sum-value-avg-asset (logic.asset/return-sum-value-average-price-asset (return-all-assets db (name table)))
@@ -33,15 +34,10 @@
   [asset sum-value-asset sum-value-avg-asset]
   (let [total-value (+ (:value-asset asset) 10)]
     {:saida-valortotal total-value
-     :teste-brenno "brenno"
+     :teste-brenno     "brenno"
      }
     )
   )
-
-(defn dividir
-  [asset]
-
-)
 
 (defn update-recommendation
   "Update the recommendation percentage for an asset."
@@ -50,11 +46,21 @@
         sum-value-asset (logic.asset/return-sum-value-asset (return-all-assets db (name table)))
         sum-value-avg-asset (logic.asset/return-sum-value-average-price-asset (return-all-assets db (name table)))]
     (map (fn [asset]
-           (let [percent (+ (:value-asset asset) sum-value-asset)]
-             (assoc asset :percent percent)))
-         list-asset)
-    )
+           (let [percent-current (logic.asset/return-percent-current (:value-asset asset) sum-value-asset)
+                 percent-difference-recommendation (logic.asset/return-perc-diff-recommendation (:percent-recommendation asset) percent-current)
+                 quantity-fix (logic.asset/return-quantity-fix percent-difference-recommendation sum-value-avg-asset (:value-average-price-asset asset))
+                 ]
+              (-> asset
+                  (assoc :percent-current percent-current)
+                  (assoc :percent-difference-recommendation percent-difference-recommendation)
+                  (assoc :quantity-fix quantity-fix))
+              ;(jdbc/update! db table (util.convert/schema-keys-to-snake-case asset) ["id = ?" (:id asset)])
 
-  )
+              ))
+             list-asset)))
+
+;TODO ajustar o que quebrei no insert
 
 
+
+;TODO ajustar o update que ta zuado
