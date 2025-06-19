@@ -20,7 +20,6 @@
         (map (fn [[k v]] [(kebab->snake k) v]) schema)))
 
 (defn schema-keys-to-kebab-case [schema]
-  (println schema)
   (into {}
         (map (fn [[k v]] [(snake->kebab k) v]) schema)))
 

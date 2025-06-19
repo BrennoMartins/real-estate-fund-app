@@ -1,7 +1,8 @@
 (ns real-estate-fund-app.logic.asset
   (:require
     [real-estate-fund-app.model.asset :as model.asset]
-    [schema.core :as s]))
+    [schema.core :as s])
+  (:import (java.math RoundingMode)))
 
 
 ;TODO FAZER TODOS OS TESTES UNITARIOS PARA O LOGIC ASSET
@@ -28,7 +29,8 @@
 
 (defn return-percent-current
   [value sum-value-asset]
-  (* 100 (/ value sum-value-asset)))
+  (* 100 (.divide value sum-value-asset RoundingMode/HALF_UP))
+  )
 
 (defn return-quantity-fix
   [perc-diff-recommendation sum-value-avg-asset average-price]
@@ -65,10 +67,10 @@
         (assoc :value-asset value))))
 
 
-;TODO implementar o sum-value-asset
 (defn return-sum-value-asset
   [assets]
   (reduce + (map :value-asset assets)))
 
-
-;TODO implementar o sum-value-avg-asset
+ (defn return-sum-value-average-price-asset
+  [assets]
+  (reduce + (map :value-total-average-price-asset assets)))
