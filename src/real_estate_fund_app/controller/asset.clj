@@ -16,6 +16,13 @@
   (let [percent-current (logic.asset/return-percent-current (:value-asset asset) sum-value)
         percent-diff (logic.asset/return-perc-diff-recommendation (:percent-recommendation asset) percent-current)
         quantity-fix (logic.asset/return-quantity-fix percent-diff sum-value-avg (:value-average-price-asset asset))]
+    (println "-----------")
+    (println "Asset:" (:name-asset asset))
+    (println percent-diff)
+    (println sum-value-avg)
+    (println (:value-average-price-asset asset))
+    (println quantity-fix)
+
     (assoc asset
       :percent-current percent-current
       :percent-difference-recommendation percent-diff
@@ -48,6 +55,15 @@
                     ["id_asset = ?" (:id-asset asset)]))
     updated-assets))
 
+;TODO pensar em uma forma de receber uma lista de assets para criar
+(defn recive-asset-list-to-create
+  "Receive a list of assets to create in the database."
+  [db table body]
+  (let [assets (map #(util.convert/schema-keys-to-snake-case %) body)]
+    (doseq [asset assets]
+      (jdbc/insert! db table asset))
+    (update-values-asset db table)))
+
 (defn create-new-asset
   "Create a new asset in the database and update its values."
   [db table body]
@@ -57,3 +73,20 @@
         new-asset (logic.asset/return-calculated-values quotation body)]
     (jdbc/insert! db table (util.convert/schema-keys-to-snake-case new-asset))
     (update-values-asset db table)))
+
+(defn update-quotation-asset
+  "Create a new asset in the database and update its values."
+  [db table]
+  (let [list-all-assets (return-all-assets db (name table))]
+    (doseq [asset list-all-assets]
+      (let [quotation (controller.quotation/return-value-quotation
+                        (:name-asset asset)
+                        (http-client/get-all-quotation-asset))
+            updated-asset (logic.asset/return-calculated-values quotation asset)]
+        (jdbc/update! db
+                      table
+                      (util.convert/schema-keys-to-snake-case updated-asset)
+                      ["id_asset = ?" (:id-asset asset)])))
+    (update-values-asset db table)
+    )
+   )
