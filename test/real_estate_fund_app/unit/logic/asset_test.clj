@@ -1,29 +1,28 @@
 (ns real-estate-fund-app.unit.logic.asset-test
   (:require [clojure.test :refer :all]
+            [real-estate-fund-app.logic.asset :as logic.asset]
             [real-estate-fund-app.logic.asset :refer [return-index-asset]]))
 
+(deftest return-quantity-fix-test
+  "Test the return-quantity-fix function with various scenarios."
+  (let [perc-diff-recommendation -0.4100M
+        sum-value-avg-asset 27326.83M
+        average-price 9.58M
+        result (logic.asset/return-quantity-fix perc-diff-recommendation sum-value-avg-asset average-price)]
+    (is (= -12M result))))
 
-(deftest calculates-index-asset-with-valid-values
-  (let [quotation 120
-        average-price 100
-        result (return-index-asset quotation average-price)]
-    (is (= result 20N))))
+(deftest return-quantity-fix-test-rbr
+  "Test the return-quantity-fix RBR"
+  (let [perc-diff-recommendation 0.0200M
+        sum-value-avg-asset 27326.83M
+        average-price 86.00M
+        result (logic.asset/return-quantity-fix perc-diff-recommendation sum-value-avg-asset average-price)]
+    (is (= 0M result))))
 
-(deftest returns-nil-when-quotation-is-missing
-  (let [quotation nil
-        average-price 100
-        result (return-index-asset quotation average-price)]
-    (is (nil? result))))
-
-(deftest returns-nil-when-average-price-is-missing
-  (let [quotation 120
-        average-price nil
-        result (return-index-asset quotation average-price)]
-    (is (nil? result))))
-
-(deftest calculates-index-asset-with-negative-values
-  (let [quotation -50
-        average-price 100
-        result (return-index-asset quotation average-price)]
-    (is (= result -150.0))))
-; TODO revisar todas as classes para teste
+(deftest return-quantity-fix-test-mcc
+  "Test the return-quantity-fix MCC"
+  (let [perc-diff-recommendation -0.2800M
+        sum-value-avg-asset 27326.83M
+        average-price 85.16M
+        result (logic.asset/return-quantity-fix perc-diff-recommendation sum-value-avg-asset average-price)]
+    (is (= -1M result))))

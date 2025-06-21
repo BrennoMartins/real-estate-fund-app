@@ -1,4 +1,4 @@
-(ns real-estate-fund-app.diplomatic.db.financialdb-test
+(ns real-estate-fund-app.unit.diplomatic.db.financialdb-test
   (:require [clojure.test :refer :all]
             [clojure.java.jdbc :as jdbc]))
 

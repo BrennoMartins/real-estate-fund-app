@@ -35,8 +35,10 @@
 
 (defn return-quantity-fix
   [perc-diff-recommendation sum-value-avg-asset average-price]
-  (let [total-all-asset-avg (* perc-diff-recommendation sum-value-avg-asset)]
-    (/ total-all-asset-avg average-price)))
+  (let [total-all-asset-avg (.multiply perc-diff-recommendation sum-value-avg-asset)
+        value-divide (.divide total-all-asset-avg average-price 4 RoundingMode/HALF_UP)
+        result (.divide value-divide (bigdec 100) 0 RoundingMode/HALF_UP)]
+    result))
 
 (s/defn return-calculated-values :- model.asset/asset-schema
   "Calculate the values for the asset based on the quotation and average price."
