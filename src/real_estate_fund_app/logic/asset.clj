@@ -27,10 +27,16 @@
   [percent-recommendation percent_current]
   ( - percent-recommendation percent_current))
 
+;(defn return-percent-current
+;  [value sum-value-asset]
+;  (* 100 (.divide value sum-value-asset RoundingMode/HALF_UP))
+;  )
+;
 (defn return-percent-current
   [value sum-value-asset]
-  (* 100 (.divide value sum-value-asset RoundingMode/HALF_UP))
-  )
+  (-> (bigdec value)
+      (.divide (bigdec sum-value-asset) 4 RoundingMode/HALF_UP)
+      (.multiply (BigDecimal/valueOf 100))))
 
 (defn return-quantity-fix
   [perc-diff-recommendation sum-value-avg-asset average-price]
@@ -52,9 +58,11 @@
         value (return-value-asset quantity quotation)
         value-total-avg (return-value-total-avg-asset quantity average-price)
         profit (return-profit-asset value value-total-avg)
+        quantity-fix 0
+        perc-diff-recommendation 0
         percent_current (return-percent-current value sum-value-asset)
-        perc-diff-recommendation (return-perc-diff-recommendation (:percent-recommendation body) percent_current)
-        quantity-fix (return-quantity-fix perc-diff-recommendation sum-value-avg-asset average-price)
+        ;perc-diff-recommendation (return-perc-diff-recommendation (:percent-recommendation body) percent_current)
+        ;quantity-fix (return-quantity-fix perc-diff-recommendation sum-value-avg-asset average-price)
         ]
     (-> body
         (assoc :quotation-asset quotation)
