@@ -43,35 +43,26 @@
              {:status 201
               :body   "All assets updated successfully"})
 
-           ;(POST "/asset/buy-recommendation" req
-           ;  (let [body (:body req)
-           ;        valid? (s/check wire.in.new_recommendation/new-recommendation-schema body)]
-           ;    (if valid?
-           ;      {:status 400 :body {:erro "Invalid data" :detalhes valid?}}
-           ;      (do
-           ;        {:status 200 :body
-           ;         (controller.recommendation/return-options-buy diplomatic.db.financialdb/db "real_estate_fund" (adapter.asset/wire-create-new-asset->internal-asset req))}))))
-
            (GET "/asset/buy-recommendation" [budget :as req]
              (if (nil? budget)
                {:status 400
-                :body {:erro "Please provide a 'budget' parameter"}}
+                :body   {:erro "Please provide a 'budget' parameter"}}
                (try
                  (let [budget-decimal (BigDecimal. budget)
                        body {:budget budget-decimal}
                        valid? (s/check wire.in.new_recommendation/new-recommendation-schema body)]
                    (if valid?
                      {:status 400
-                      :body {:erro "Invalid data" :detalhes valid?}}
+                      :body   {:erro "Invalid data" :detalhes valid?}}
                      {:status 200
-                      :body (controller.recommendation/return-options-buy
-                              diplomatic.db.financialdb/db
-                              "real_estate_fund"
-                              (adapter.asset/wire-create-new-asset->internal-asset body))}))
+                      :body   (controller.recommendation/return-options-buy
+                                diplomatic.db.financialdb/db
+                                "real_estate_fund"
+                                (adapter.asset/wire-create-new-asset->internal-asset body))}))
                  (catch Exception e
                    {:status 400
-                    :body {:erro "Invalid budget value"
-                           :detalhes (.getMessage e)}}))))
+                    :body   {:erro     "Invalid budget value"
+                             :detalhes (.getMessage e)}}))))
 
 
            (route/not-found {:status 404 :body "Route not found"}))
