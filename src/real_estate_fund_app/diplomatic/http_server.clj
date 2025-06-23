@@ -64,6 +64,20 @@
                     :body   {:erro     "Invalid budget value"
                              :detalhes (.getMessage e)}}))))
 
+           ;(PUT "/asset/real-estate/:id" [id :as req]
+           ;     (let [body (:body req)
+           ;           name-asset (:name-asset body)
+           ;           quantity-asset (:quantity-asset body)]
+           ;       (if (or (nil? id) (nil? name-asset) (nil? quantity-asset))
+           ;         {:status 400 :body {:erro "Missing required fields"}}
+           ;         (do
+           ;           (jdbc/update! diplomatic.db.financialdb/db
+           ;                         :real_estate_fund
+           ;                         {:name_asset name-asset
+           ;                          :quantity_asset quantity-asset}
+           ;                         ["id_asset = ?" (Integer/parseInt id)])
+           ;           {:status 200 :body {:mensagem "Asset updated successfully"}}))))
+
 
            (route/not-found {:status 404 :body "Route not found"}))
 

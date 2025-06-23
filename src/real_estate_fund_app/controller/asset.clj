@@ -16,13 +16,6 @@
   (let [percent-current (logic.asset/return-percent-current (:value-asset asset) sum-value)
         percent-diff (logic.asset/return-perc-diff-recommendation (:percent-recommendation asset) percent-current)
         quantity-fix (logic.asset/return-quantity-fix percent-diff sum-value-avg (:value-average-price-asset asset))]
-    (println "-----------")
-    (println "Asset:" (:name-asset asset))
-    (println percent-diff)
-    (println sum-value-avg)
-    (println (:value-average-price-asset asset))
-    (println quantity-fix)
-
     (assoc asset
       :percent-current percent-current
       :percent-difference-recommendation percent-diff
@@ -53,6 +46,13 @@
                     table
                     (util.convert/schema-keys-to-snake-case asset)
                     ["id_asset = ?" (:id-asset asset)]))
+    updated-assets))
+
+;TODO pensar em retirar a parte do db
+(defn update-values-asset-recommendation
+  "Update the values of all assets in the database for a given table."
+  [new-list-assets]
+  (let [updated-assets (calculate-all-recommendations new-list-assets)]
     updated-assets))
 
 ;TODO pensar em uma forma de receber uma lista de assets para criar
@@ -90,3 +90,12 @@
     (update-values-asset db table)
     )
    )
+
+
+; ------- UPDATE ASSET ------------------------------------------------
+
+           ;(jdbc/update! diplomatic.db.financialdb/db
+           ;              :real_estate_fund
+           ;              {:name_asset name-asset
+           ;               :quantity_asset quantity-asset}
+           ;              ["id_asset = ?" (Integer/parseInt id)])
