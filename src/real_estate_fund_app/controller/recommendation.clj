@@ -57,7 +57,7 @@
       (let [asset-to-buy (return-item-to-buy remaining-assets)
             price-asset (* (:quantity-fix asset-to-buy) (:quotation-asset asset-to-buy))]
 
-        (if (or (nil? asset-to-buy) (> price-asset budget))
+        (if (or (nil? asset-to-buy) (> price-asset budget) (= price-asset 0.00M))
           ;; fim da compra
           (if (empty? result)
             {:name-asset "nenhuma recomendação" :quantity-asset 0}
@@ -70,58 +70,3 @@
                                          :total price-asset})]
             (println new-budget)
             (recur updated-assets new-budget new-result)))))))
-
-
-
-(defn metodo-teste
-  [valor
-   debito]
-  (- valor debito)
-  )
-
-
-(defn testar-metodo-teste
-  [valor
-   debito]
-  (let [resultado (metodo-teste valor debito)]
-    (println "Resultado do teste:" resultado)
-    resultado))
-
-
-(defn entendendo-loop
-  []
-  (loop [i 0]                         ;; inicia variável i com 0
-    (when (< i 5)                    ;; enquanto i < 5
-      (println "i é:" i)            ;; imprime i
-      (recur (inc i))))             ;; reinicia o loop com i + 1
-  )
-
-
-(defn exercicio-um-to-dez
-  []
-
-  (loop [i 1]                     ;; inicia variável i com 1
-    (when (<= i 10)                    ;; enquanto i < 10)
-      (println "i é:" i)              ;; imprime i
-      (recur (inc i)))                 ;; reinicia o loop com i + 1
-    )
-  )
-
-
-(defn soma-ate [n]
-  (loop [i 1]
-    (when (<= i n)
-      (+ )
-
-      ) ;; sua implementação aqui)
-    ))
-
-(defn soma-ate [n]
-  (loop [i 1
-         total 0]
-    (if (> i n)
-      total
-      (recur (inc i) (+ total i)))))
-
-
-(exercicio-um-to-dez)
