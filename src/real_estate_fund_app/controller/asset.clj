@@ -36,17 +36,33 @@
   (->> (db.asset/return-all-assets-db db table)
        (map util.convert/schema-keys-to-kebab-case)))
 
-(defn update-values-asset
+;(defn update-values-asset
+;  "Update the values of all assets in the database for a given table."
+;  [db table]
+;  (let [assets (return-all-assets db (name table))
+;        updated-assets (calculate-all-recommendations assets)]
+;    (doseq [asset updated-assets]
+;      (jdbc/update! db
+;                    table
+;                    (util.convert/schema-keys-to-snake-case asset)
+;                    ["id_asset = ?" (:id-asset asset)]))
+;    updated-assets))
+
+(defn update-values-asset-db
   "Update the values of all assets in the database for a given table."
-  [db table]
-  (let [assets (return-all-assets db (name table))
-        updated-assets (calculate-all-recommendations assets)]
-    (doseq [asset updated-assets]
-      (jdbc/update! db
-                    table
-                    (util.convert/schema-keys-to-snake-case asset)
-                    ["id_asset = ?" (:id-asset asset)]))
-    updated-assets))
+  ([db table]
+   (let [assets (return-all-assets db (name table))
+         updated-assets (calculate-all-recommendations assets)]
+     (update-values-asset-db db table updated-assets)))
+
+  ([db table updated-assets]
+   (doseq [asset updated-assets]
+     (jdbc/update! db
+                   table
+                   (util.convert/schema-keys-to-snake-case asset)
+                   ["id_asset = ?" (:id-asset asset)]))
+   updated-assets))
+
 
 ;TODO pensar em retirar a parte do db
 (defn update-values-asset-recommendation
@@ -62,7 +78,7 @@
   (let [assets (map #(util.convert/schema-keys-to-snake-case %) body)]
     (doseq [asset assets]
       (jdbc/insert! db table asset))
-    (update-values-asset db table)))
+    (update-values-asset-db db table)))
 
 (defn create-new-asset
   "Create a new asset in the database and update its values."
@@ -72,7 +88,7 @@
                     (http-client/get-all-quotation-asset))
         new-asset (logic.asset/return-calculated-values quotation body)]
     (jdbc/insert! db table (util.convert/schema-keys-to-snake-case new-asset))
-    (update-values-asset db table)))
+    (update-values-asset-db db table)))
 
 (defn update-quotation-asset
   "Create a new asset in the database and update its values."
@@ -87,7 +103,7 @@
                       table
                       (util.convert/schema-keys-to-snake-case updated-asset)
                       ["id_asset = ?" (:id-asset asset)])))
-    (update-values-asset db table)
+    (update-values-asset-db db table)
     )
    )
 

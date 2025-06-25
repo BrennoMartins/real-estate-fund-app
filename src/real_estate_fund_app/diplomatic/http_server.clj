@@ -55,7 +55,7 @@
                      {:status 400
                       :body   {:erro "Invalid data" :detalhes valid?}}
                      {:status 200
-                      :body   (controller.recommendation/return-options-buy
+                      :body   (controller.recommendation/group-return-option-buy
                                 diplomatic.db.financialdb/db
                                 "real_estate_fund"
                                 (adapter.asset/wire-create-new-asset->internal-asset body))}))

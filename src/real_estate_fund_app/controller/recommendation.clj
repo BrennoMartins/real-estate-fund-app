@@ -25,48 +25,43 @@
     (controller.asset/update-values-asset-recommendation updated-assets)
   ))
 
-;(s/defn return-options-buy ;:- wire.out.return_recommendation/recommendation-return-schema
-;  [db
-;   table
-;   recommendation-budget :- model.recommendation/Recommendation]
-;  (let [list-all-assets (controller.asset/return-all-assets db (name table))
-;        asset-to-buy (return-item-to-buy list-all-assets)
-;        price-asset (* (:quantity-fix asset-to-buy) (:quotation-asset asset-to-buy))
-;        return-recommendation-teste {}]
-;
-;    (if (> price-asset (:budget recommendation-budget))
-;      {:name-asset "nenhuma recomendação" :quantity-asset 0}
-;      (do
-;        (return-updated-list-after-buy list-all-assets asset-to-buy)
-;        (assoc return-recommendation-teste
-;          :name-asset (:name-asset asset-to-buy)
-;          :quantity-asset (:quantity-fix asset-to-buy)
-;          :total price-asset)
-;        ))))
-;
  (s/defn return-options-buy
   [db
    table
    recommendation-budget :- model.recommendation/Recommendation]
   (let [initial-assets (controller.asset/return-all-assets db (name table))]
-
-    ;; Função recursiva para simular o while
     (loop [remaining-assets initial-assets
            budget (:budget recommendation-budget)
            result []]
       (let [asset-to-buy (return-item-to-buy remaining-assets)
             price-asset (* (:quantity-fix asset-to-buy) (:quotation-asset asset-to-buy))]
-
         (if (or (nil? asset-to-buy) (> price-asset budget) (= price-asset 0.00M))
-          ;; fim da compra
           (if (empty? result)
-            {:name-asset "nenhuma recomendação" :quantity-asset 0}
+            {:name-asset "No recommendation found" :quantity-asset 0}
             result)
-          ;; continuar comprando
           (let [updated-assets (return-updated-list-after-buy remaining-assets asset-to-buy)
                 new-budget (- budget price-asset)
                 new-result (conj result {:name-asset (:name-asset asset-to-buy)
                                          :quantity-asset (:quantity-fix asset-to-buy)
                                          :total price-asset})]
-            (println new-budget)
+            (controller.asset/update-values-asset-db db table updated-assets)
             (recur updated-assets new-budget new-result)))))))
+
+
+(s/defn group-return-option-buy
+  [db
+   table
+   recommendation-budget :- model.recommendation/Recommendation]
+  (let [list-all-assets (return-options-buy db table recommendation-budget)]
+    (->> list-all-assets
+         (group-by :name-asset)
+         (map (fn [[name entries]]
+                {:name-asset     name
+                 :quantity-asset (reduce + (map :quantity-asset entries))
+                 :total          (reduce + (map :total entries))
+                 }
+                )
+              )
+         )
+    )
+  )
