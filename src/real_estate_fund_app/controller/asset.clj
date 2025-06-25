@@ -16,13 +16,6 @@
   (let [percent-current (logic.asset/return-percent-current (:value-asset asset) sum-value)
         percent-diff (logic.asset/return-perc-diff-recommendation (:percent-recommendation asset) percent-current)
         quantity-fix (logic.asset/return-quantity-fix percent-diff sum-value-avg (:value-average-price-asset asset))]
-    (println "-----------")
-    (println "Asset:" (:name-asset asset))
-    (println percent-diff)
-    (println sum-value-avg)
-    (println (:value-average-price-asset asset))
-    (println quantity-fix)
-
     (assoc asset
       :percent-current percent-current
       :percent-difference-recommendation percent-diff
@@ -43,16 +36,39 @@
   (->> (db.asset/return-all-assets-db db table)
        (map util.convert/schema-keys-to-kebab-case)))
 
-(defn update-values-asset
+;(defn update-values-asset
+;  "Update the values of all assets in the database for a given table."
+;  [db table]
+;  (let [assets (return-all-assets db (name table))
+;        updated-assets (calculate-all-recommendations assets)]
+;    (doseq [asset updated-assets]
+;      (jdbc/update! db
+;                    table
+;                    (util.convert/schema-keys-to-snake-case asset)
+;                    ["id_asset = ?" (:id-asset asset)]))
+;    updated-assets))
+
+(defn update-values-asset-db
   "Update the values of all assets in the database for a given table."
-  [db table]
-  (let [assets (return-all-assets db (name table))
-        updated-assets (calculate-all-recommendations assets)]
-    (doseq [asset updated-assets]
-      (jdbc/update! db
-                    table
-                    (util.convert/schema-keys-to-snake-case asset)
-                    ["id_asset = ?" (:id-asset asset)]))
+  ([db table]
+   (let [assets (return-all-assets db (name table))
+         updated-assets (calculate-all-recommendations assets)]
+     (update-values-asset-db db table updated-assets)))
+
+  ([db table updated-assets]
+   (doseq [asset updated-assets]
+     (jdbc/update! db
+                   table
+                   (util.convert/schema-keys-to-snake-case asset)
+                   ["id_asset = ?" (:id-asset asset)]))
+   updated-assets))
+
+
+;TODO pensar em retirar a parte do db
+(defn update-values-asset-recommendation
+  "Update the values of all assets in the database for a given table."
+  [new-list-assets]
+  (let [updated-assets (calculate-all-recommendations new-list-assets)]
     updated-assets))
 
 ;TODO pensar em uma forma de receber uma lista de assets para criar
@@ -62,7 +78,7 @@
   (let [assets (map #(util.convert/schema-keys-to-snake-case %) body)]
     (doseq [asset assets]
       (jdbc/insert! db table asset))
-    (update-values-asset db table)))
+    (update-values-asset-db db table)))
 
 (defn create-new-asset
   "Create a new asset in the database and update its values."
@@ -72,7 +88,7 @@
                     (http-client/get-all-quotation-asset))
         new-asset (logic.asset/return-calculated-values quotation body)]
     (jdbc/insert! db table (util.convert/schema-keys-to-snake-case new-asset))
-    (update-values-asset db table)))
+    (update-values-asset-db db table)))
 
 (defn update-quotation-asset
   "Create a new asset in the database and update its values."
@@ -87,6 +103,15 @@
                       table
                       (util.convert/schema-keys-to-snake-case updated-asset)
                       ["id_asset = ?" (:id-asset asset)])))
-    (update-values-asset db table)
+    (update-values-asset-db db table)
     )
    )
+
+
+; ------- UPDATE ASSET ------------------------------------------------
+
+           ;(jdbc/update! diplomatic.db.financialdb/db
+           ;              :real_estate_fund
+           ;              {:name_asset name-asset
+           ;               :quantity_asset quantity-asset}
+           ;              ["id_asset = ?" (Integer/parseInt id)])

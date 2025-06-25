@@ -1,12 +1,14 @@
 (ns real-estate-fund-app.diplomatic.http-server
   (:require [clojure.java.jdbc :as jdbc]
-            [compojure.core :refer [defroutes POST GET]]
+            [compojure.core :refer [GET POST defroutes]]
             [compojure.route :as route]
-            [real-estate-fund-app.controller.asset :as controller.asset]
-            [real-estate-fund-app.diplomatic.db.financialdb :as diplomatic.db.financialdb]
             [real-estate-fund-app.adapter.asset :as adapter.asset]
+            [real-estate-fund-app.controller.asset :as controller.asset]
+            [real-estate-fund-app.controller.recommendation :as controller.recommendation]
+            [real-estate-fund-app.diplomatic.db.financialdb :as diplomatic.db.financialdb]
             [real-estate-fund-app.model.asset :as model.asset]
             [real-estate-fund-app.wire.in.create-new-asset :as wire.in.create-new-asset]
+            [real-estate-fund-app.wire.in.new_recommendation :as wire.in.new_recommendation]
             [ring.adapter.jetty :as jetty]
             [ring.middleware.defaults :refer [api-defaults wrap-defaults]]
             [ring.middleware.json :refer [wrap-json-body wrap-json-response]]
@@ -40,6 +42,42 @@
              (controller.asset/update-quotation-asset diplomatic.db.financialdb/db "real_estate_fund")
              {:status 201
               :body   "All assets updated successfully"})
+
+           (GET "/asset/buy-recommendation" [budget :as req]
+             (if (nil? budget)
+               {:status 400
+                :body   {:erro "Please provide a 'budget' parameter"}}
+               (try
+                 (let [budget-decimal (BigDecimal. budget)
+                       body {:budget budget-decimal}
+                       valid? (s/check wire.in.new_recommendation/new-recommendation-schema body)]
+                   (if valid?
+                     {:status 400
+                      :body   {:erro "Invalid data" :detalhes valid?}}
+                     {:status 200
+                      :body   (controller.recommendation/group-return-option-buy
+                                diplomatic.db.financialdb/db
+                                "real_estate_fund"
+                                (adapter.asset/wire-create-new-asset->internal-asset body))}))
+                 (catch Exception e
+                   {:status 400
+                    :body   {:erro     "Invalid budget value"
+                             :detalhes (.getMessage e)}}))))
+
+           ;(PUT "/asset/real-estate/:id" [id :as req]
+           ;     (let [body (:body req)
+           ;           name-asset (:name-asset body)
+           ;           quantity-asset (:quantity-asset body)]
+           ;       (if (or (nil? id) (nil? name-asset) (nil? quantity-asset))
+           ;         {:status 400 :body {:erro "Missing required fields"}}
+           ;         (do
+           ;           (jdbc/update! diplomatic.db.financialdb/db
+           ;                         :real_estate_fund
+           ;                         {:name_asset name-asset
+           ;                          :quantity_asset quantity-asset}
+           ;                         ["id_asset = ?" (Integer/parseInt id)])
+           ;           {:status 200 :body {:mensagem "Asset updated successfully"}}))))
+
 
            (route/not-found {:status 404 :body "Route not found"}))
 
