@@ -9,7 +9,6 @@
             [schema.core :as s]))
 
 ;; -- Helpers ------------------------------------------------------------
-
 (defn- calculate-recommendation-values
   "Calculate the recommendation values for a single asset."
   [asset sum-value sum-value-avg]
@@ -29,24 +28,17 @@
     (mapv #(calculate-recommendation-values % sum-value sum-value-avg) assets)))
 
 ;; -- Controller functions ----------------------------------------------
-
 (s/defn return-all-assets :- model.asset/asset-schema
   "Retorna todos os assets convertendo para kebab-case."
   [db table]
   (->> (db.asset/return-all-assets-db db table)
        (map util.convert/schema-keys-to-kebab-case)))
 
-;(defn update-values-asset
-;  "Update the values of all assets in the database for a given table."
-;  [db table]
-;  (let [assets (return-all-assets db (name table))
-;        updated-assets (calculate-all-recommendations assets)]
-;    (doseq [asset updated-assets]
-;      (jdbc/update! db
-;                    table
-;                    (util.convert/schema-keys-to-snake-case asset)
-;                    ["id_asset = ?" (:id-asset asset)]))
-;    updated-assets))
+(s/defn return-one-assets-by-id-db :- model.asset/asset-schema
+  "Retorna todos os assets convertendo para kebab-case."
+  [db table id]
+  (->> (db.asset/return-one-assets-by-id-db db table id)
+       (map util.convert/schema-keys-to-kebab-case)))
 
 (defn update-values-asset-db
   "Update the values of all assets in the database for a given table."
@@ -62,7 +54,6 @@
                    (util.convert/schema-keys-to-snake-case asset)
                    ["id_asset = ?" (:id-asset asset)]))
    updated-assets))
-
 
 ;TODO pensar em retirar a parte do db
 (defn update-values-asset-recommendation
@@ -103,10 +94,30 @@
                       table
                       (util.convert/schema-keys-to-snake-case updated-asset)
                       ["id_asset = ?" (:id-asset asset)])))
-    (update-values-asset-db db table)
-    )
-   )
+    (update-values-asset-db db table)))
 
+; TODO refatorar esse metodo
+(defn buying-asset
+  [ db table body]
+  (let [quotation (controller.quotation/return-value-quotation
+                        (:name-asset body)
+                        (http-client/get-all-quotation-asset))
+        existing-asset (first (return-one-assets-by-id-db db table (:id-asset body)))]
+    (if existing-asset
+      (let [new-value_asset (+ (:value-asset existing-asset) (* (:quantity-asset body) quotation))
+            new-value-average-price-asset (/ new-value_asset (+ (:quantity-asset body) (:quantity-asset existing-asset)))
+            updated-asset (assoc existing-asset
+                                 :quantity-asset (+ (:quantity-asset existing-asset) (:quantity-asset body))
+                                 :value-average-price-asset new-value-average-price-asset)]
+        (println existing-asset)
+        (jdbc/update! db
+                      table
+                      (util.convert/schema-keys-to-snake-case updated-asset)
+                      ["id_asset = ?" (:id-asset existing-asset)])
+        (update-values-asset-db db table)))))
+
+
+;TODO prioridade -> esta funcionando porem nao atualizou o valor do asset
 
 ; ------- UPDATE ASSET ------------------------------------------------
 

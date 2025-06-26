@@ -1,11 +1,9 @@
 (ns real-estate-fund-app.controller.recommendation
-  (:require [real-estate-fund-app.model.recommendation :as model.recommendation]
-            [real-estate-fund-app.model.asset :as model.asset]
-            [real-estate-fund-app.wire.out.return_recommendation :as wire.out.return_recommendation]
-            [real-estate-fund-app.controller.asset :as controller.asset]
+  (:require [real-estate-fund-app.controller.asset :as controller.asset]
+            [real-estate-fund-app.model.recommendation :as model.recommendation]
             [schema.core :as s]))
 
-
+;TODO Refatorar todo esse código, está muito confuso e repetitivo
 (defn return-item-to-buy
   [list-all-assets]
   (first (sort-by :quantity-fix #(compare %2 %1) list-all-assets))

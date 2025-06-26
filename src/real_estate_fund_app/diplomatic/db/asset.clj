@@ -11,6 +11,13 @@
   (jdbc/query db
               [(str "SELECT * FROM " table " ORDER BY id_asset DESC")]))
 
+(s/defn return-one-assets-by-id-db :- model.asset/asset-schema
+  "Return one asset."
+  [db table id]
+  (println id)
+  (jdbc/query db
+              [(str "SELECT * FROM " table " WHERE id_asset = ?") id]))
+
 
 ; TODO Lembrar que tenho que converter o retorno para o formato do schema -
 (return-all-assets-db diplomatic.db.financialdb/db "real_estate_fund")
