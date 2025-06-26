@@ -8,6 +8,7 @@
             [real-estate-fund-app.diplomatic.db.financialdb :as diplomatic.db.financialdb]
             [real-estate-fund-app.model.asset :as model.asset]
             [real-estate-fund-app.wire.in.create-new-asset :as wire.in.create-new-asset]
+            [real-estate-fund-app.wire.in.buy-asset :as wire.in.buy-asset]
             [real-estate-fund-app.wire.in.new_recommendation :as wire.in.new_recommendation]
             [ring.adapter.jetty :as jetty]
             [ring.middleware.defaults :refer [api-defaults wrap-defaults]]
@@ -36,11 +37,11 @@
 
            (PUT "/asset/real-estate/buy/:id-asset" [id-asset :as req]
              (let [body (assoc (:body req) :id-asset (Integer/parseInt id-asset))
-                   valid? (s/check wire.in.create-new-asset/create-new-asset-schema body)]
+                   valid? (s/check wire.in.buy-asset/buy-asset-schema body)]
                (if valid?
                  {:status 400 :body {:error "Missing required fields"}}
                  (do
-                   (controller.asset/buying-asset diplomatic.db.financialdb/db "real_estate_fund" (adapter.asset/wire-create-new-asset->internal-asset body))
+                   (controller.asset/buying-asset diplomatic.db.financialdb/db "real_estate_fund" (adapter.asset/wire-buy-asset->internal-asset body))
                      {:status 201 :body {:mensagem "Asset created successfully"}}))))
 
            ;(PUT "/asset/real-estate/buy/:id-asset" [id-asset :as req]

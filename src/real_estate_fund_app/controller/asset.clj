@@ -99,10 +99,11 @@
 ; TODO refatorar esse metodo
 (defn buying-asset
   [ db table body]
-  (let [quotation (controller.quotation/return-value-quotation
-                        (:name-asset body)
-                        (http-client/get-all-quotation-asset))
-        existing-asset (first (return-one-assets-by-id-db db table (:id-asset body)))]
+  (let [existing-asset (first (return-one-assets-by-id-db db table (:id-asset body)))
+        quotation (controller.quotation/return-value-quotation
+                    (:name-asset existing-asset)
+                    (http-client/get-all-quotation-asset))]
+    (println quotation)
     (if existing-asset
       (let [new-value_asset (+ (:value-asset existing-asset) (* (:quantity-asset body) quotation))
             new-value-average-price-asset (/ new-value_asset (+ (:quantity-asset body) (:quantity-asset existing-asset)))
@@ -114,15 +115,4 @@
                       table
                       (util.convert/schema-keys-to-snake-case updated-asset)
                       ["id_asset = ?" (:id-asset existing-asset)])
-        (update-values-asset-db db table)))))
-
-
-;TODO prioridade -> esta funcionando porem nao atualizou o valor do asset
-
-; ------- UPDATE ASSET ------------------------------------------------
-
-           ;(jdbc/update! diplomatic.db.financialdb/db
-           ;              :real_estate_fund
-           ;              {:name_asset name-asset
-           ;               :quantity_asset quantity-asset}
-           ;              ["id_asset = ?" (Integer/parseInt id)])
+        (update-quotation-asset db table)))))
