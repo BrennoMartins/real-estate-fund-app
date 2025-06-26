@@ -1,6 +1,6 @@
 (ns real-estate-fund-app.diplomatic.http-server
   (:require [clojure.java.jdbc :as jdbc]
-            [compojure.core :refer [GET POST defroutes]]
+            [compojure.core :refer [GET POST PUT defroutes]]
             [compojure.route :as route]
             [real-estate-fund-app.adapter.asset :as adapter.asset]
             [real-estate-fund-app.controller.asset :as controller.asset]
@@ -24,15 +24,6 @@
                    (controller.asset/create-new-asset diplomatic.db.financialdb/db :real_estate_fund (adapter.asset/wire-create-new-asset->internal-asset body))
                    {:status 201 :body {:mensagem "Asset created successfully"}}))))
 
-           (POST "/asset/real-estate/refatorar" req
-             (let [body (:body req)
-                   valid? (s/check model.asset/asset-schema body)]
-               (if valid?
-                 {:status 400 :body {:erro "Dados inválidos" :detalhes valid?}}
-                 (do
-                   (jdbc/insert! diplomatic.db.financialdb/db :real_estate_fund body)
-                   {:status 201 :body {:mensagem "Pessoa inserida com sucesso"}}))))
-
            (GET "/asset/real-estate" []
              (let [assets (controller.asset/return-all-assets diplomatic.db.financialdb/db "real_estate_fund")]
                {:status 200
@@ -42,6 +33,27 @@
              (controller.asset/update-quotation-asset diplomatic.db.financialdb/db "real_estate_fund")
              {:status 201
               :body   "All assets updated successfully"})
+
+           (PUT "/asset/real-estate/buy/:id-asset" [id-asset :as req]
+             (let [body (assoc (:body req) :id-asset (Integer/parseInt id-asset))
+                   valid? (s/check wire.in.create-new-asset/create-new-asset-schema body)]
+               (if valid?
+                 {:status 400 :body {:error "Missing required fields"}}
+                 (do
+                   (controller.asset/buying-asset diplomatic.db.financialdb/db "real_estate_fund" (adapter.asset/wire-create-new-asset->internal-asset body))
+                     {:status 201 :body {:mensagem "Asset created successfully"}}))))
+
+           ;(PUT "/asset/real-estate/buy/:id-asset" [id-asset :as req]
+           ;  (let [body (assoc (:body req) :id-asset (Integer/parseInt id-asset))
+           ;        valid? (s/check wire.in.create-new-asset/create-new-asset-schema body)]
+           ;    (println body)
+           ;    (if valid?
+           ;      {:status 400 :body {:error "Missing required fields"}}
+           ;      (do
+           ;        (let [teste
+           ;              0]
+           ;              ;(controller.asset/buying-asset diplomatic.db.financialdb/db :real_estate_fund (adapter.asset/wire-create-new-asset->internal-asset body) id-asset)]
+           ;          {:status 201 :body teste})))))
 
            (GET "/asset/buy-recommendation" [budget :as req]
              (if (nil? budget)
