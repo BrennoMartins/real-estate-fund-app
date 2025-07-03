@@ -4,8 +4,6 @@
     [schema.core :as s])
   (:import (java.math RoundingMode)))
 
-
-;TODO FAZER TODOS OS TESTES UNITARIOS PARA O LOGIC ASSET
 (defn return-index-asset
   [quotation average-price]
   (let [percent (/ (- quotation average-price) average-price)]
