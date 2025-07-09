@@ -1,6 +1,5 @@
 (ns real-estate-fund-app.logic.recommendation)
 
-; TODO montar o teste unitário para essa lógica
 (defn return-item-to-buy
   [list-all-assets]
   (first (sort-by :quantity-fix #(compare %2 %1) list-all-assets)))

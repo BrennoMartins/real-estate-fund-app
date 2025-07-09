@@ -12,7 +12,6 @@
 (deftest return-item-to-buy-empty-list
   (is (nil? (logic.recommendation/return-item-to-buy []))))
 
-; TODO Corrigir esse teste, pois o resultado esperado não é o correto
  (def sample-assets
   [(s/validate model.asset/asset-schema
      {:id-asset 1
@@ -58,10 +57,39 @@
                 :quantity-fix 1
                 :profit-asset 50.0
                 :name-asset "Asset A"})])
-;
+
+(def sample-assets-result
+  [(s/validate model.asset/asset-schema
+               {:id-asset 1
+                :index-asset 100.0
+                :quantity-asset 10
+                :quotation-asset 50.0
+                :value-asset 500.0
+                :value-average-price-asset 50.0
+                :value-total-average-price-asset 500.0
+                :percent-recommendation 20.0
+                :percent-current 18.0
+                :percent-difference-recommendation 2.0
+                :quantity-fix 0
+                :profit-asset 50.0
+                :name-asset "Asset A"})
+   (s/validate model.asset/asset-schema
+               {:id-asset 2
+                :index-asset 200.0
+                :quantity-asset 5
+                :quotation-asset 100.0
+                :value-asset 500.0
+                :value-average-price-asset 100.0
+                :value-total-average-price-asset 500.0
+                :percent-recommendation 30.0
+                :percent-current 28.0
+                :percent-difference-recommendation 2.0
+                :quantity-fix 1
+                :profit-asset 25.0
+                :name-asset "Asset B"})])
+
 (deftest return-list-after-buy-valid-input
-  (is (= [{:name-asset "Asset A", :quantity-asset 15, :value-asset 1500, :value-total-average-price-asset 750, :quotation-asset 100 :value-average-price-asset 50}
-          {:name-asset "Asset B", :quantity-asset 10, :value-asset 1000, :value-total-average-price-asset 500, :quotation-asset 100 :value-average-price-asset 50}]
+  (is (= sample-assets-result
          (logic.recommendation/return-list-after-buy sample-assets sample-assets-buy))))
 
 (deftest return-list-after-buy-no-match
