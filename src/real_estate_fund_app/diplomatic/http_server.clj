@@ -35,6 +35,11 @@
              {:status 201
               :body   "All assets updated successfully"})
 
+           (POST "/asset/real-estate/reset" []
+             (controller.asset/reset-assets diplomatic.db.financialdb/db "real_estate_fund")
+             {:status 201
+              :body   "Reset successfully"})
+
            (PUT "/asset/real-estate/buy/:id-asset" [id-asset :as req]
              (let [body (assoc (:body req) :id-asset (Integer/parseInt id-asset))
                    valid? (s/check wire.in.buy-asset/buy-asset-schema body)]
