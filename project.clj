@@ -5,6 +5,7 @@
             :url "https://www.eclipse.org/legal/epl-2.0/"}
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [compojure "1.7.0"]
+                 [cheshire "5.12.0"]
                  [ring/ring-defaults "0.3.4"]
                  [ring/ring-json "0.5.1"]
                  [ring/ring-jetty-adapter "1.10.0"]

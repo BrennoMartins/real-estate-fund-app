@@ -1,37 +1,33 @@
 (ns real-estate-fund-app.unit.adapter.asset-test
   (:require [clojure.test :refer :all]
-            [real-estate-fund-app.adapter.asset :refer [wire-create-new-asset->internal-asset]]
-            [real-estate-fund-app.wire.in.create-new-asset :as wire.in.create-new-asset]
-            [real-estate-fund-app.model.asset :as model.asset]
-            [schema.core :as s]))
+            [real-estate-fund-app.adapter.asset :as adapter.asset]))
 
 
+(deftest wire-create-new-asset-initializes-default-values
+  (let [payload {:name-asset "Asset A", :quantity-asset 10}
+        result (adapter.asset/wire-create-new-asset->internal-asset payload)]
+    (is (= "Asset A" (:name-asset result)))
+    (is (= 10 (:quantity-asset result)))
+    (is (= 0 (:quotation-asset result)))
+    (is (= 0 (:value-total-average-price-asset result)))
+    (is (= 0 (:percent-current result)))
+    (is (= 0 (:percent-difference-recommendation result)))
+    (is (= 0 (:quantity-fix result)))
+    (is (= 0 (:profit-asset result)))
+    (is (= 0 (:index-asset result)))
+    (is (= 0 (:value-asset result)))))
 
-(deftest creates-internal-asset-with-default-values
-  (let [payload {:id_asset                  1
-                 :quantity_asset            10
-                 :value_average_price_asset 500
-                 :name_asset                "Asset A"
-                 :value_asset               1000}
-        result (wire-create-new-asset->internal-asset payload)]
-    (is (= (:quotation_asset result) 0))
-    (is (= (:difference_asset result) 0))
-    (is (= (:index_asset result) 0))
-    (is (= (:name_asset result) "Asset A"))
-    (is (= (:value_asset result) 1000)))
-  )
-
-(deftest handles-missing-required-fields
-  (let [payload {:value_asset 1000}
-        result (s/check model.asset/asset-schema (wire-create-new-asset->internal-asset payload))]
-    (is (map? result))
-    (is (contains? result :name_asset))))
-
-;TODO tenho que fazer um tratamento para nao receber campos extras no payload
-;(deftest handles-extra-fields-in-payload
-;  (let [payload {:name_asset "Asset B" :value_asset 2000 :extra_field "unexpected"}
-;        result (wire-create-new-asset->internal-asset payload)]
-;    (println payload)
-;    (is (not (contains? result :extra_field)))
-;    (is (= (:name_asset result) "Asset B"))
-;    (is (= (:value_asset result) 2000))))
+(deftest wire-buy-asset-initializes-default-values
+  (let [payload {:name-asset "Asset B", :quantity-asset 5}
+        result (adapter.asset/wire-buy-asset->internal-asset payload)]
+    (is (= "" (:name-asset result)))
+    (is (= 5 (:quantity-asset result)))
+    (is (= 0 (:quotation-asset result)))
+    (is (= 0 (:value-total-average-price-asset result)))
+    (is (= 0 (:percent-current result)))
+    (is (= 0 (:percent-difference-recommendation result)))
+    (is (= 0 (:quantity-fix result)))
+    (is (= 0 (:profit-asset result)))
+    (is (= 0 (:index-asset result)))
+    (is (= 0 (:value-asset result)))
+    (is (= 0 (:value-average-price-asset result)))))

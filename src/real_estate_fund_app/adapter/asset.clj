@@ -1,7 +1,7 @@
 (ns real-estate-fund-app.adapter.asset
-  (:require [real-estate-fund-app.wire.in.create-new-asset :as wire.in.create-new-asset]
+  (:require [real-estate-fund-app.model.asset :as model.asset]
             [real-estate-fund-app.wire.in.buy-asset :as wire.in.buy-asset]
-            [real-estate-fund-app.model.asset :as model.asset]
+            [real-estate-fund-app.wire.in.create-new-asset :as wire.in.create-new-asset]
             [schema.core :as s]))
 
 (s/defn wire-create-new-asset->internal-asset :- model.asset/asset-schema

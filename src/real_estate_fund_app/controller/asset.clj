@@ -6,6 +6,7 @@
             [real-estate-fund-app.util.convert :as util.convert]
             [real-estate-fund-app.diplomatic.db.asset :as db.asset]
             [real-estate-fund-app.diplomatic.http-client :as http-client]
+            [real-estate-fund-app.util.import-json :as util.import-json]
             [schema.core :as s]))
 
 ;; -- Helpers ------------------------------------------------------------
@@ -116,3 +117,10 @@
                       (util.convert/schema-keys-to-snake-case updated-asset)
                       ["id_asset = ?" (:id-asset existing-asset)])
         (update-quotation-asset db table)))))
+
+(defn reset-assets
+  [db table]
+  (let [asset-list (util.import-json/open-file "import.json")]
+    (jdbc/execute! db [(str "DELETE FROM " (name table))])
+    (doseq [asset asset-list]
+      (create-new-asset db table asset))))
