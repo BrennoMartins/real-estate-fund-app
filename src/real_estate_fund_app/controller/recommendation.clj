@@ -13,7 +13,8 @@
 (s/defn return-options-buy
   [db table recommendation-budget :- model.recommendation/Recommendation]
   (let [initial-assets (controller.asset/return-all-assets db (name table))
-        initial-budget (:budget recommendation-budget)]
+        initial-budget (:budget recommendation-budget)
+        update-database? (:update-asset recommendation-budget)]
 
     (loop [remaining-assets initial-assets
            budget initial-budget
@@ -30,7 +31,8 @@
           (let [updated-assets (return-updated-list-after-buy remaining-assets asset-to-buy)
                 updated-budget (- budget price)
                 updated-result (conj result (logic.recommendation/build-buy-result asset-to-buy price))]
-            (controller.asset/update-values-asset-db db table updated-assets)
+            (when update-database?
+              (controller.asset/update-values-asset-db db table updated-assets))
             (recur updated-assets updated-budget updated-result)))))))
 
 (s/defn group-return-option-buy

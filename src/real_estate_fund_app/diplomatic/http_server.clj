@@ -3,6 +3,7 @@
             [compojure.core :refer [GET POST PUT defroutes]]
             [compojure.route :as route]
             [real-estate-fund-app.adapter.asset :as adapter.asset]
+            [real-estate-fund-app.adapter.recommendation :as adapter.recommendation]
             [real-estate-fund-app.controller.asset :as controller.asset]
             [real-estate-fund-app.controller.recommendation :as controller.recommendation]
             [real-estate-fund-app.diplomatic.db.financialdb :as diplomatic.db.financialdb]
@@ -61,13 +62,14 @@
            ;              ;(controller.asset/buying-asset diplomatic.db.financialdb/db :real_estate_fund (adapter.asset/wire-create-new-asset->internal-asset body) id-asset)]
            ;          {:status 201 :body teste})))))
 
-           (GET "/asset/buy-recommendation" [budget :as req]
+           (GET "/asset/buy-recommendation" [budget update-asset :as req]
              (if (nil? budget)
                {:status 400
                 :body   {:erro "Please provide a 'budget' parameter"}}
                (try
                  (let [budget-decimal (BigDecimal. budget)
-                       body {:budget budget-decimal}
+                       body {:budget budget-decimal
+                             :update-asset update-asset}
                        valid? (s/check wire.in.new_recommendation/new-recommendation-schema body)]
                    (if valid?
                      {:status 400
@@ -76,7 +78,7 @@
                       :body   (controller.recommendation/group-return-option-buy
                                 diplomatic.db.financialdb/db
                                 "real_estate_fund"
-                                (adapter.asset/wire-create-new-asset->internal-asset body))}))
+                                (adapter.recommendation/wire-in-recommendation->internal  body))}))
                  (catch Exception e
                    {:status 400
                     :body   {:erro     "Invalid budget value"
