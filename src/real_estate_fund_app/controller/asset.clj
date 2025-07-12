@@ -1,11 +1,10 @@
 (ns real-estate-fund-app.controller.asset
   (:require [clojure.java.jdbc :as jdbc]
-            [real-estate-fund-app.logic.asset :as logic.asset]
             [real-estate-fund-app.controller.quotation :as controller.quotation]
+            [real-estate-fund-app.diplomatic.db.asset :as db.asset]
+            [real-estate-fund-app.logic.asset :as logic.asset]
             [real-estate-fund-app.model.asset :as model.asset]
             [real-estate-fund-app.util.convert :as util.convert]
-            [real-estate-fund-app.diplomatic.db.asset :as db.asset]
-            [real-estate-fund-app.diplomatic.http-client :as http-client]
             [real-estate-fund-app.util.import-json :as util.import-json]
             [schema.core :as s]))
 
@@ -75,9 +74,7 @@
 (defn create-new-asset
   "Create a new asset in the database and update its values."
   [db table body]
-  (let [quotation (controller.quotation/return-value-quotation
-                    (:name-asset body)
-                    (http-client/get-all-quotation-asset))
+  (let [quotation (controller.quotation/return-value-one-quotation (:name-asset body))
         new-asset (logic.asset/return-calculated-values quotation body)]
     (jdbc/insert! db table (util.convert/schema-keys-to-snake-case new-asset))
     (update-values-asset-db db table)))
@@ -87,9 +84,7 @@
   [db table]
   (let [list-all-assets (return-all-assets db (name table))]
     (doseq [asset list-all-assets]
-      (let [quotation (controller.quotation/return-value-quotation
-                        (:name-asset asset)
-                        (http-client/get-all-quotation-asset))
+      (let [quotation (controller.quotation/return-value-one-quotation (:name-asset asset))
             updated-asset (logic.asset/return-calculated-values quotation asset)]
         (jdbc/update! db
                       table
@@ -101,9 +96,7 @@
 (defn buying-asset
   [ db table body]
   (let [existing-asset (first (return-one-assets-by-id-db db table (:id-asset body)))
-        quotation (controller.quotation/return-value-quotation
-                    (:name-asset existing-asset)
-                    (http-client/get-all-quotation-asset))]
+        quotation (controller.quotation/return-value-one-quotation (:name-asset existing-asset))]
     (println quotation)
     (if existing-asset
       (let [new-value_asset (+ (:value-asset existing-asset) (* (:quantity-asset body) quotation))
@@ -111,7 +104,6 @@
             updated-asset (assoc existing-asset
                                  :quantity-asset (+ (:quantity-asset existing-asset) (:quantity-asset body))
                                  :value-average-price-asset new-value-average-price-asset)]
-        (println existing-asset)
         (jdbc/update! db
                       table
                       (util.convert/schema-keys-to-snake-case updated-asset)
