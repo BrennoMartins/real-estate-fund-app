@@ -2,4 +2,5 @@
   (:require [schema.core :as s]))
 
 (s/defschema new-recommendation-schema
-  {:budget s/Num})
+  {:budget s/Num
+   :update-asset s/Str})
