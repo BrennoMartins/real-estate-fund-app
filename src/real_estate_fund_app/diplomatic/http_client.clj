@@ -4,33 +4,19 @@
             [clojure.walk :refer [keywordize-keys]]
             [real-estate-fund-app.model.quotation :as model.quotation]
             [real-estate-fund-app.config :as config]
-            [real-estate-fund-app.adapter.quotation :as adapter.quotation]
             [malli.core :as m]
             [schema.core :as s]))
 
-(s/defn get-all-quotation-asset :- model.quotation/QuotationListSchema
-  []
-  (let [url config/quotation-url
+(s/defn get-quotation-asset-by-name :- model.quotation/Quotation
+  [name]
+  (let [url (str config/quotation-url name)
         response (client/get url {:as :json-string-keys})
         data (keywordize-keys (:body response))]
-    (if (m/validate wire.in.list-quotation/QuotationListSchema data)
-      (adapter.quotation/wire-in-quotation->internal data)
+    (if (m/validate wire.in.list-quotation/QuotationSchema data)
+      data
       (throw (ex-info "Response does not match with schema!" {:data data})))))
 
 
 
-;TODO fazer consulta via by name, e tenho que fazer isso no quotation para receber o nome do ativo
-(defn get-quotation-asset-by-name
-  []
-  (let [url "http://localhost:8084/app/quotation"
-        response (client/get url {:as :json-string-keys})
-        data (keywordize-keys (:body response))]
-    ;(when-not (m/validate wire.in.list-quotation/QuotationListSchema data)
-    ;  (println "nao - " (m/explain wire.in.list-quotation/QuotationListSchema data)))
-    (if (m/validate wire.in.list-quotation/QuotationListSchema data)
-      data
-      (throw (ex-info "Response does not match with schema!" {:data data})))
-    )
-  )
 
 ;TODO listar em um documento tudo que usamos em Clojure
