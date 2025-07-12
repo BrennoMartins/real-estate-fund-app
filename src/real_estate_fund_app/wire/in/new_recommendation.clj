@@ -3,4 +3,4 @@
 
 (s/defschema new-recommendation-schema
   {:budget s/Num
-   :update-asset s/Bool})
+   :update-asset s/Str})

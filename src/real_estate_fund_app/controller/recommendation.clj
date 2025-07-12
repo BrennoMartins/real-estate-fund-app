@@ -14,7 +14,7 @@
   [db table recommendation-budget :- model.recommendation/Recommendation]
   (let [initial-assets (controller.asset/return-all-assets db (name table))
         initial-budget (:budget recommendation-budget)
-        update-database? (:update-asset recommendation-budget)]
+        update-database? (= (:update-asset recommendation-budget) "true")]
 
     (loop [remaining-assets initial-assets
            budget initial-budget

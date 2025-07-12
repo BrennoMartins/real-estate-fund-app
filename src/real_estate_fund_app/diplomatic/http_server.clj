@@ -1,15 +1,13 @@
 (ns real-estate-fund-app.diplomatic.http-server
-  (:require [clojure.java.jdbc :as jdbc]
-            [compojure.core :refer [GET POST PUT defroutes]]
+  (:require [compojure.core :refer [GET POST PUT defroutes]]
             [compojure.route :as route]
             [real-estate-fund-app.adapter.asset :as adapter.asset]
             [real-estate-fund-app.adapter.recommendation :as adapter.recommendation]
             [real-estate-fund-app.controller.asset :as controller.asset]
             [real-estate-fund-app.controller.recommendation :as controller.recommendation]
             [real-estate-fund-app.diplomatic.db.financialdb :as diplomatic.db.financialdb]
-            [real-estate-fund-app.model.asset :as model.asset]
-            [real-estate-fund-app.wire.in.create-new-asset :as wire.in.create-new-asset]
             [real-estate-fund-app.wire.in.buy-asset :as wire.in.buy-asset]
+            [real-estate-fund-app.wire.in.create-new-asset :as wire.in.create-new-asset]
             [real-estate-fund-app.wire.in.new_recommendation :as wire.in.new_recommendation]
             [ring.adapter.jetty :as jetty]
             [ring.middleware.defaults :refer [api-defaults wrap-defaults]]
@@ -50,18 +48,6 @@
                    (controller.asset/buying-asset diplomatic.db.financialdb/db "real_estate_fund" (adapter.asset/wire-buy-asset->internal-asset body))
                      {:status 201 :body {:mensagem "Asset created successfully"}}))))
 
-           ;(PUT "/asset/real-estate/buy/:id-asset" [id-asset :as req]
-           ;  (let [body (assoc (:body req) :id-asset (Integer/parseInt id-asset))
-           ;        valid? (s/check wire.in.create-new-asset/create-new-asset-schema body)]
-           ;    (println body)
-           ;    (if valid?
-           ;      {:status 400 :body {:error "Missing required fields"}}
-           ;      (do
-           ;        (let [teste
-           ;              0]
-           ;              ;(controller.asset/buying-asset diplomatic.db.financialdb/db :real_estate_fund (adapter.asset/wire-create-new-asset->internal-asset body) id-asset)]
-           ;          {:status 201 :body teste})))))
-
            (GET "/asset/buy-recommendation" [budget update-asset :as req]
              (if (nil? budget)
                {:status 400
@@ -84,30 +70,13 @@
                     :body   {:erro     "Invalid budget value"
                              :detalhes (.getMessage e)}}))))
 
-           ;(PUT "/asset/real-estate/:id" [id :as req]
-           ;     (let [body (:body req)
-           ;           name-asset (:name-asset body)
-           ;           quantity-asset (:quantity-asset body)]
-           ;       (if (or (nil? id) (nil? name-asset) (nil? quantity-asset))
-           ;         {:status 400 :body {:erro "Missing required fields"}}
-           ;         (do
-           ;           (jdbc/update! diplomatic.db.financialdb/db
-           ;                         :real_estate_fund
-           ;                         {:name_asset name-asset
-           ;                          :quantity_asset quantity-asset}
-           ;                         ["id_asset = ?" (Integer/parseInt id)])
-           ;           {:status 200 :body {:mensagem "Asset updated successfully"}}))))
-
-
            (route/not-found {:status 404 :body "Route not found"}))
 
-;; Middleware
 (def app
   (-> app-routes
       (wrap-json-body {:keywords? true})
       wrap-json-response
       (wrap-defaults api-defaults)))
 
-;; Main
 (defn -main []
   (jetty/run-jetty app {:port 3000}))
