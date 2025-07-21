@@ -47,6 +47,7 @@
          updated-assets (calculate-all-recommendations assets)]
      (update-values-asset-db db table updated-assets)))
 
+  ;TODO colocar padrao db.asset/
   ([db table updated-assets]
    (doseq [asset updated-assets]
      (jdbc/update! db
@@ -55,7 +56,6 @@
                    ["id_asset = ?" (:id-asset asset)]))
    updated-assets))
 
-;TODO pensar em retirar a parte do db
 (defn update-values-asset-recommendation
   "Update the values of all assets in the database for a given table."
   [new-list-assets]
@@ -67,6 +67,7 @@
   "Receive a list of assets to create in the database."
   [db table body]
   (let [assets (map #(util.convert/schema-keys-to-snake-case %) body)]
+    ;TODO colocar padrao db.asset/
     (doseq [asset assets]
       (jdbc/insert! db table asset))
     (update-values-asset-db db table)))
@@ -76,6 +77,7 @@
   [db table body]
   (let [quotation (controller.quotation/return-value-one-quotation (:name-asset body))
         new-asset (logic.asset/return-calculated-values quotation body)]
+    ;TODO colocar padrao db.asset/
     (jdbc/insert! db table (util.convert/schema-keys-to-snake-case new-asset))
     (update-values-asset-db db table)))
 
@@ -86,6 +88,7 @@
     (doseq [asset list-all-assets]
       (let [quotation (controller.quotation/return-value-one-quotation (:name-asset asset))
             updated-asset (logic.asset/return-calculated-values quotation asset)]
+        ;TODO colocar padrao db.asset/
         (jdbc/update! db
                       table
                       (util.convert/schema-keys-to-snake-case updated-asset)
@@ -104,6 +107,7 @@
             updated-asset (assoc existing-asset
                                  :quantity-asset (+ (:quantity-asset existing-asset) (:quantity-asset body))
                                  :value-average-price-asset new-value-average-price-asset)]
+        ;TODO colocar padrao db.asset/
         (jdbc/update! db
                       table
                       (util.convert/schema-keys-to-snake-case updated-asset)
@@ -113,6 +117,7 @@
 (defn reset-assets
   [db table]
   (let [asset-list (util.import-json/open-file "import.json")]
+    ;TODO colocar padrao db.asset/
     (jdbc/execute! db [(str "DELETE FROM " (name table))])
     (doseq [asset asset-list]
       (create-new-asset db table asset))))
