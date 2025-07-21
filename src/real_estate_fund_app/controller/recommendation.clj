@@ -3,7 +3,7 @@
             [real-estate-fund-app.model.recommendation :as model.recommendation]
             [real-estate-fund-app.logic.recommendation :as logic.recommendation]
             [schema.core :as s]))
-;TODO criar uma flag para verificar se quero alterar a base de dados ou apenas retornar a lista de ativos recomendados
+
 (defn return-updated-list-after-buy
   [list-all-assets
    asset-to-buy]

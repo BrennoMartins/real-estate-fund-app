@@ -15,8 +15,3 @@
     (if (m/validate wire.in.list-quotation/QuotationSchema data)
       data
       (throw (ex-info "Response does not match with schema!" {:data data})))))
-
-
-
-
-;TODO listar em um documento tudo que usamos em Clojure
