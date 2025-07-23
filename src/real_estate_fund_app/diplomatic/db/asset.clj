@@ -15,3 +15,12 @@
   (println id)
   (jdbc/query db
               [(str "SELECT * FROM " table " WHERE id_asset = ?") id]))
+
+(defn update-asset-by-id [db table asset]
+  (jdbc/update! db
+                table
+                asset
+                ["id_asset = ?" (:id-asset asset)]))
+
+(defn insert-assert [db table asset]
+  (jdbc/insert! db table asset))
