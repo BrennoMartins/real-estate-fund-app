@@ -100,17 +100,14 @@
             updated-asset (assoc existing-asset
                             :quantity-asset (+ (:quantity-asset existing-asset) (:quantity-asset body))
                             :value-average-price-asset new-value-average-price-asset)]
-        ;TODO colocar padrao db.asset/
-        (jdbc/update! db
-                      table
-                      (util.convert/schema-keys-to-snake-case updated-asset)
-                      ["id_asset = ?" (:id-asset existing-asset)])
+        ;TODO testar esse novo padrao
+        (db.asset/update-asset-by-id db table (util.convert/schema-keys-to-snake-case updated-asset))
         (update-quotation-asset db table)))))
 
 (defn reset-assets
   [db table]
   (let [asset-list (util.import-json/open-file "import.json")]
-    ;TODO colocar padrao db.asset/
-    (jdbc/execute! db [(str "DELETE FROM " (name table))])
+    ;TODO testar esse novo padrao
+    (db.asset/delete-all db table)
     (doseq [asset asset-list]
       (create-new-asset db table asset))))

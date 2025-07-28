@@ -22,5 +22,12 @@
                 asset
                 ["id_asset = ?" (:id-asset asset)]))
 
+(defn delete-all [db table]
+  (jdbc/execute! db [(str "DELETE FROM " (name table))]))
+
+
+
+
+
 (defn insert-assert [db table asset]
   (jdbc/insert! db table asset))
